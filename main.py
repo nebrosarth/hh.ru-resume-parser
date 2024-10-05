@@ -133,7 +133,10 @@ def main():
             # Функция для безопасного извлечения данных с обработкой исключений
             def safe_search(pattern, text):
                 match = re.search(pattern, text)
-                return match.group(1).strip() if match else None
+                result = match.group(1).strip() if match else None
+                if result:
+                    result = result.replace('\n', ' ')
+                return result
 
             # Пол
             data['Пол'] = safe_search(r'(Мужчина|Женщина)', text)
@@ -160,7 +163,10 @@ def main():
             data['Опыт работы (лет)'] = safe_search(r'(\d+)\s*год', text)
 
             # Навыки
-            data['Навыки'] = safe_search(r'Навыки\s*\s*([\s\S]+?)(?=\s*(Высшее образование|Обо мне|Опыт вождения))', text)
+            data['Навыки'] = safe_search(r'Навыки\s*\s*Уровни владения навыками\s*\s*([\s\S]+?)(?=\s*(Высшее образование|Обо мне|Опыт вождения|Портфолио|Знание языков))', text)
+
+            # Обо мне
+            data['Обо мне'] = safe_search(r'Обо мне\s*\s*([\s\S]+?)(?=\s*(Высшее образование|Опыт вождения|Портфолио|Знание языков|Повышение квалификации, курсы|Гражданство, время в пути до работы))', text)
 
             # Высшее образование
             data['Высшее образование'] = safe_search(r'Высшее образование\ss*([\s\S]+?)(?=\s*Знание языков)', text)
@@ -177,6 +183,8 @@ def main():
 
             # Желательное время в пути
             data['Желательное время в пути'] = safe_search(r'Желательное время в пути до работы\s*:\s*(.+)', text)
+
+            #data['HTML'] = resume_html
 
             print(data)
             all_resumes.append((resume_url, resume_text))
